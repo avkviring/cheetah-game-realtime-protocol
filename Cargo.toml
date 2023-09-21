@@ -1,13 +1,10 @@
-[workspace.package]
+[package]
+name = "cheetah-game-realtime-protocol"
 version = "999.999.999"
 authors = ["kviring <alex@kviring.com>"]
 edition = "2021"
-
-[package]
-name = "cheetah-protocol"
-authors.workspace = true
-edition.workspace = true
-version = "0.1.0"
+license="MIT"
+description="UDP based Protocol with different guarantees. For PVP/PVE games and others."
 
 [dependencies]
 lazy_static = "1.4.0"
