@@ -4,11 +4,11 @@ use std::time::{Duration, Instant};
 
 use rand::rngs::OsRng;
 use rand::Rng;
+use cheetah_game_realtime_protocol::{InputDataHandler, OutputDataProducer, Protocol};
+use cheetah_game_realtime_protocol::coniguration::ProtocolConfiguration;
+use cheetah_game_realtime_protocol::frame::Frame;
+use cheetah_game_realtime_protocol::reliable::retransmit::RETRANSMIT_DEFAULT_ACK_TIMEOUT;
 
-use cheetah_protocol::coniguration::ProtocolConfiguration;
-use cheetah_protocol::frame::Frame;
-use cheetah_protocol::reliable::retransmit::RETRANSMIT_DEFAULT_ACK_TIMEOUT;
-use cheetah_protocol::{InputDataHandler, OutputDataProducer, Protocol};
 
 #[derive(Default)]
 pub struct StubInputDataHandler {
