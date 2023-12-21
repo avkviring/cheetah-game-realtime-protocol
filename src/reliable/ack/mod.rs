@@ -75,8 +75,8 @@ impl AckSender {
         }
 
         if self.ack_tasks.len() > AckSender::MAX_ACK_TASK {
+            self.ack_tasks.remove(0);
             tracing::error!("AckSender overflow ack_tasks");
-            return;
         }
 
         self.ack_tasks.push(AckTask {
