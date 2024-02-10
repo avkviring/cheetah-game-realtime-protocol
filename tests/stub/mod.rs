@@ -21,6 +21,9 @@ impl InputDataHandler for StubInputDataHandler {
 		self.items.push(data.into());
 		self.size_recv += data.len();
 	}
+
+	fn reset(&mut self) {
+	}
 }
 
 #[derive(Default)]
@@ -71,6 +74,9 @@ impl OutputDataProducer for StubOutputDataProducer {
 				(source.bytes.len(), source.reliable)
 			}
 		}
+	}
+
+	fn reset(&mut self) {
 	}
 }
 
