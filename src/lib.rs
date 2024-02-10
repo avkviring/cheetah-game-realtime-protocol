@@ -43,11 +43,13 @@ pub const NOT_EXIST_FRAME_ID: FrameId = 0;
 
 pub trait InputDataHandler {
     fn on_input_data(&mut self, data: &[u8]);
+    fn reset(&mut self);
 }
 
 pub trait OutputDataProducer {
     fn contains_output_data(&self) -> bool;
     fn get_output_data(&mut self, out: &mut [u8]) -> (usize, bool);
+    fn reset(&mut self);
 }
 
 ///
@@ -153,9 +155,9 @@ impl<IN, OUT> Protocol<IN, OUT>
     }
 
     fn reset_protocol(&mut self, frame: &Frame, now: Instant) {
-        tracing::info!("Protocol: reset protocol");
         self.connection_id = frame.connection_id;
         self.next_frame_id = 1;
+        self.next_packed_id = 1;
         self.disconnect_by_timeout = DisconnectByTimeout::new(now, self.disconnect_by_timeout.timeout);
         self.replay_protection = Default::default();
         self.ack_sender = Default::default();
@@ -164,6 +166,8 @@ impl<IN, OUT> Protocol<IN, OUT>
         self.keep_alive = Default::default();
         self.in_frame_counter = Default::default();
         self.packets_collector = Default::default();
+        self.input_data_handler.reset();
+        self.output_data_producer.reset();
     }
 
     ///
@@ -274,6 +278,9 @@ pub mod tests {
         fn on_input_data(&mut self, _data: &[u8]) {
             self.on_recv_count += 1;
         }
+
+        fn reset(&mut self) {
+        }
     }
 
     #[derive(Default)]
@@ -286,6 +293,9 @@ pub mod tests {
 
         fn get_output_data(&mut self, _packet: &mut [u8]) -> (usize, bool) {
             (0, false)
+        }
+
+        fn reset(&mut self) {
         }
     }
 
@@ -302,6 +312,18 @@ pub mod tests {
         let mut out: VecDeque<Frame> = Default::default();
         protocol.collect_out_frames(Instant::now(), &mut out);
         assert_eq!(out.len(), 1);
+    }
+
+
+    #[test]
+    fn should_reset() {
+        let mut protocol = create_protocol(1);
+        protocol.on_frame_received(&create_frame(5, 99), Instant::now());
+        let mut out: VecDeque<Frame> = Default::default();
+        protocol.collect_out_frames(Instant::now(), &mut out);
+        // на переключение connection_id протокол должен сгенироровать новый keep alive пакет
+        assert_eq!(out[0].connection_id, 5);
+        assert_eq!(out[0].frame_id, 2);
     }
 
     fn create_frame(connection_id: ConnectionId, frame_id: FrameId) -> Frame {
